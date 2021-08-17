@@ -1,2 +1,3 @@
-# VersionValidator
-GitHub action that validates versions
+# GitHub Action Template
+
+Refer to the [docs](./documentation/docs.md) for more information.
