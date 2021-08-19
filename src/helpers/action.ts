@@ -1,6 +1,5 @@
 import {getInput, setOutput, info, warning, setFailed, InputOptions} from "@actions/core";
-import { context } from "@actions/github";
-import {Environment as Environment} from "./environment";
+import {Environment as Environment} from "./Environment";
 
 /**
  * Represents different action functionality.

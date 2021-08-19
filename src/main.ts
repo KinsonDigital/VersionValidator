@@ -1,4 +1,4 @@
-import {Action} from "./helpers/action";
+import {Action} from "./helpers/Action";
 
 
 /**
