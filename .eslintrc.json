@@ -18,7 +18,7 @@
             "error",
             "windows"
         ],
-        "@typescript-eslint/prefer-for-of": ["warn"],
+        "@typescript-eslint/prefer-for-of": ["ignore"],
         "@typescript-eslint/no-unsafe-argument": ["error"],
         "@typescript-eslint/prefer-includes": ["error"],
         "@typescript-eslint/prefer-ts-expect-error": ["error"],
