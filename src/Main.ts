@@ -1,4 +1,5 @@
 import {Action} from "./helpers/Action";
+import {VersionSyntaxChecker} from "./VersionSyntaxChecker";
 
 
 /**
@@ -14,11 +15,12 @@ export class Application {
 		
 		try {
 			// Refer to the action.yml file for the list of inputs setup for the action
-			const inputValue: string = action.getInput("sample-input-name");
+			const nugetPackageName: string = action.getInput("nuget-package-name");
+			const version: string = action.getInput("version");
+			const checkNuget: string = action.getInput("check-nuget");
+			const failIfNugetVersionExists: string = action.getInput("fail-if-nuget-version-exists");
 
-			if (inputValue === "hello") {
-				action.setOutput("sample-output-name", "world");
-			}
+			const versionChecker: VersionSyntaxChecker = new VersionSyntaxChecker();
 
 			return await Promise.resolve();
 		} catch (error) {

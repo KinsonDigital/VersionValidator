@@ -28,8 +28,10 @@ export class Environment {
 			// Set to environment value of production			
 			this.inputs = {
 				environment: "production",
-				
-				// TODO: Setup the inputs here added in the ActionInputs file
+				nugetPackageName: "",
+				version: "",
+				checkNuget: false,
+				failIfNugetVersionExists: false,
 			};
 		}
 	}

@@ -11,6 +11,8 @@ export interface ActionInputs {
 	 * NOTE: The input 'environment' is just for testing and never exists in the YAML file.
      */
 	environment: string,
-	
-	// TODO: Add more action inputs here
+	nugetPackageName: string,
+	version: string,
+	checkNuget: boolean,
+	failIfNugetVersionExists: false,
 }

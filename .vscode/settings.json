@@ -18,6 +18,7 @@
         "jsxdev",
         "linebreak",
         "nodir",
+        "nuget",
         "paren",
         "parens",
         "postclean",

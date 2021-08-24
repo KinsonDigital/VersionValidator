@@ -7,17 +7,16 @@ import {Environment as Environment} from "./Environment";
  */
 export class Action {
 	private environment: Environment;
-
+	
 	private devEnvOutputs: Record<string, any> = {};
+	
+	private requiredInputs: string[] = [ "nuget-package-name", "version", ];
 
 	/**
      * Creates a new instance of ActionInputs
      */
 	constructor () {
     	this.environment = new Environment();
-		
-
-
 	}
 
 	/**
@@ -28,22 +27,14 @@ export class Action {
 	public getInput (name: string): string {
     	if (this.environment.isDevelop()) {
 			// Development version pulls from the 'env.json' file for testing
-			let isRequired: boolean = true;
-
-			if (name === "contains") {
-				isRequired = false;
-			}
+			let isRequired: boolean = this.requiredInputs.includes(name);
 
 			return this.environment.getVarValue(name, isRequired);
 		} else if (this.environment.isProd()) {
 			// Production version pulls the inputs from the YAML file
 			let options: InputOptions = {
-				required: true,
+				required: this.requiredInputs.includes(name),
 			};
-
-			if (name === "contains") {
-				options.required = false;
-			}
 
 			return getInput(name, options);
     	} else {

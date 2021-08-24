@@ -1,12 +1,25 @@
-name: 'SAMPLE-ACTION' #TODO: Set the name of the action
-description: 'Gets version information from a .csproj file.'
+name: 'Version Validator'
+description: |
+  Validates that a particular version has correct semantic versioning syntax
+  as well as if the version already exists in nuget.org
 inputs:
-  sample-input-name:  #TODO: Add inputs for the action
-    description: 'This is a sample input'
+  nuget-package-name: 
+    description: 'The full name of the nuget package. NOTE: Not case sensitive.'
     required: true
+  version:
+    description: 'The version string to validate.'
+    required: true
+  check-nuget:
+    description: 'If true, will check nuget.org to verify if a package with that version already exists.'
+    required: false
+  fail-if-nuget-version-exists:
+    description: |
+      If true, will fail the action if the nuget package version exists.  Only used when 'check-nuget' is true.
+      If 'check-nuget' is false, then this will always be treated as false.
+    required: false
 outputs:
-  sample-output-name: #TODO: Setup the action outputs
-    description: 'This is a sample output to be used by other actions.'
+  version-valid:
+    description: 'True if all of the version validation passes.'
 runs:
   using: 'node12'
   main: 'dist/index.js'
