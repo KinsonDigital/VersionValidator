@@ -220,6 +220,19 @@ export class VersionChecker {
 		return filteredVersions[0];
 	}
 
+	/**
+	 * Returns a filtered list of versions where all versions with the largest number by
+	 * the given version number.
+	 * @param versions The version to filter through.
+	 * @param number The number to use to filter.
+	 * @returns The filtered result of the versions.
+	 * @example
+	 * ``` ts
+	 * // The example below would return the a list with the largest patch number.
+	 * const versions: string[] = [ "1.2.3", "1.2.4" ];
+	 * this.filterByVersionNumber(versions, VersionNumber.Patch); 
+	 * ```
+	 */
 	private filterByVersionNumber (versions: string[], number: VersionNumber): string[] {
 		let largest: number = 0;
 
@@ -236,7 +249,17 @@ export class VersionChecker {
 		});
 	}
 
-
+	/**
+	 * Returns the given extracted number from the given version.
+	 * @param version The version to extract the number from.
+	 * @param number The number to extract.
+	 * @returns The extracted number.
+	 * @example
+	 * ``` ts
+	 * // Returns the value '2'
+	 * this.getVersionNum ("1.2.3-preview.4", VersionNumber.Minor);
+	 * ```
+	 */
 	private getVersionNum (version: string, number: VersionNumber): number {
 		let mainSection: string = version;
 
