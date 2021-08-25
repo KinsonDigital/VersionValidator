@@ -1,15 +1,29 @@
 import { IsValidResult } from "./interfaces/IsValidResult";
 import { NugetAPI } from "./NugetAPI";
 
+/**
+ * Checks versions to verify if they are the correct syntax, obey
+ * the rules of semantic versioning, and do not conflict with currently
+ * published version on nuget.org
+ */
 export class VersionChecker {
 	private readonly numbers: string[] = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ];
 	private readonly nugetAPI: NugetAPI;
 	private publishedVersions: string[] = [];
 
+	/**
+	 * Creates a new instance of VersionChecker.
+	 * @param nugetAPI Gets information from nuget.org
+	 */
 	constructor (nugetAPI: NugetAPI) {
 		this.nugetAPI = nugetAPI;
 	}
 	
+	/**
+	 * Returns a value indicating if the given version is valid.
+	 * @param version The version to check.
+	 * @returns True if the version is valid.
+	 */
 	public async isValid (version: string): Promise<IsValidResult> {
 		const isValidSyntax: boolean = this.isValidSyntax(version);
 		this.publishedVersions = await this.nugetAPI.getPublishedVersions();
@@ -45,9 +59,13 @@ export class VersionChecker {
 		}
 	}
 
+	/**
+	 * Returns a value indicating if the given version is the correct syntax.
+	 * @param version The version to check.
+	 * @returns True if the version is the correct syntax.
+	 */
 	private isValidSyntax (version: string): boolean {
-		if (version === undefined || version === null ||
-			version === "" || version.startsWith("v")) {
+		if (version === undefined || version === null || version === "") {
 			return false;
 		}
 		
@@ -58,6 +76,12 @@ export class VersionChecker {
 		}
 	}
 
+	/**
+	 * Returns a value indicating if the given version is too large compared to
+	 * the latest version currently published in nuget.org
+	 * @param version The version to check against what is currently published.
+	 * @returns True if the version is too large.
+	 */
 	private isVersionTooLarge (version: string): boolean {
 		const latestVersion: string = this.getLatestVersion();
 
@@ -120,6 +144,12 @@ export class VersionChecker {
 		return false;
 	}
 
+	/**
+	 * Returns a value indicating if the given version is too small compared to
+	 * the latest version currently published in nuget.org
+	 * @param version The version to check against what is currently published.
+	 * @returns True if the version is too small.
+	 */
 	private isVersionTooSmall(version: string): boolean {
 		const latestVersion: string = this.getLatestVersion();
 
@@ -165,6 +195,10 @@ export class VersionChecker {
 		return false;
 	}
 
+	/**
+	 * The latest version currently published in nuget.or
+	 * @returns The latest version.
+	 */
 	private getLatestVersion (): string {
 		let filteredVersions: string[];
 		let largestMajor: number = 0;
@@ -231,15 +265,27 @@ export class VersionChecker {
 		return filteredVersions[0];
 	}
 
-	private getMainVersion (version: string): string {
+	/**
+	 * Gets the main section from the version.
+	 * @param version The version to get the main version section from.
+	 * @returns The main version section.
+	 * @summary The main section of '1.2.3' or '1.2.3-preview.4' would be '1.2.3'
+	 */
+	private getMainVersionSection (version: string): string {
 		return version.includes("-preview.") ? version.split("-")[0] : version;
 	}
 
+	/**
+	 * Gets the major number from the version.
+	 * @param version The version to get the major number from.
+	 * @returns The major number from the version.
+	 * @summary The major number of '1.2.3-preview.4' or '1.2.3' would be '1'.
+	 */
 	private getMajorNumber (version: string): number {
 		let mainSection: string = version;
 
 		if (this.isPreview(version)) {
-			mainSection = this.getMainVersion(version);
+			mainSection = this.getMainVersionSection(version);
 		}
 
 		const numberSections: string[] = mainSection.split(".");
@@ -247,11 +293,17 @@ export class VersionChecker {
 		return parseInt(numberSections[0]);
 	}
 
+	/**
+	 * Gets the minor number from the version.
+	 * @param version The version to get the minor number from.
+	 * @returns The minor number from the version.
+	 * @summary The minor number of '1.2.3-preview.4' or '1.2.3' would be '2'.
+	 */
 	private getMinorNumber (version: string): number {
 		let mainSection: string = version;
 
 		if (this.isPreview(version)) {
-			mainSection = this.getMainVersion(version);
+			mainSection = this.getMainVersionSection(version);
 		}
 
 		const numberSections: string[] = mainSection.split(".");
@@ -259,11 +311,17 @@ export class VersionChecker {
 		return parseInt(numberSections[1]);
 	}
 
+	/**
+	 * Gets the patch number from the version.
+	 * @param version The version to get the patch number from.
+	 * @returns The patch number from the version.
+	 * @summary The patch number of '1.2.3-preview.4' or '1.2.3' would be '3'.
+	 */
 	private getPatchNumber (version: string): number {
 		let mainSection: string = version;
 
 		if (this.isPreview(version)) {
-			mainSection = this.getMainVersion(version);
+			mainSection = this.getMainVersionSection(version);
 		}
 
 		const numberSections: string[] = mainSection.split(".");
@@ -271,6 +329,12 @@ export class VersionChecker {
 		return parseInt(numberSections[2]);
 	}
 
+	/**
+	 * Gets the preview number from the preview version.
+	 * @param version The preview version to get the number from.
+	 * @returns The preview number.
+	 * @summary The preview number of '1.2.3-preview.4' would be '4'.  Assumes that the version is a preview version.
+	 */
 	private getPreviewNumber (version: string): number {
 		const previewSection: string = version.split("-")[1];
 		const sections: string[] = previewSection.split(".");
@@ -278,6 +342,12 @@ export class VersionChecker {
 		return parseInt(sections[1]);
 	}
 
+	/**
+	 * Returns a value indicating if the version syntax is valid for a production version.
+	 * @param mainVersionSection The main section of a version.
+	 * @returns True if the version is valid for a production version.
+	 * @summary With the preview version '1.2.3-preview.4', the main section would be '1.2.3'
+	 */
 	private validProductionSyntax (mainVersionSection: string): boolean {
 		const sections: string[] = mainVersionSection.split(".");
 		const totalSections: number = 3;
@@ -289,30 +359,46 @@ export class VersionChecker {
 		return this.isNumber(sections[0]) && this.isNumber(sections[1]) && this.isNumber(sections[2]);
 	}
 
+	/**
+	 * Returns a value indicating if the version syntax is valid for a preview version.
+	 * @param version The version to check.
+	 * @returns True if the version syntax is valid for a preview version.
+	 */
 	private validPreviewSyntax (version: string): boolean {
 		const sections: string[] = version.split("-");
 		const prevNumStr: string = sections[1].split(".")[1];
+
 		return this.validProductionSyntax(sections[0]) && this.isNumber(prevNumStr);
 	}
 
+	/**
+	 * Returns a value indicating if the version is a preview version.
+	 * @param version The version to check.
+	 * @returns True if the version is a preview version.
+	 */
 	private isPreview (version: string): boolean {
 		return version.includes("-preview.") &&
 			!version.startsWith("-preview.") &&
 			!version.endsWith("-preview.");
 	}
 
-	private isNumber (numString: string): boolean {
+	/**
+	 * Returns a value indicating if the number string is a valid number.
+	 * @param numStr The string representation of a number.
+	 * @returns True if the string value is a number.
+	 */
+	private isNumber (numStr: string): boolean {
 		let isNumberCharacter: boolean = true;
 
-		for (const v of numString) {
+		for (const v of numStr) {
 			if (!this.numbers.includes(v)) {
 				isNumberCharacter = false;
 				break;
 			}
 		}
 
-		return !numString.includes("-") &&
-			!numString.includes(".") &&
+		return !numStr.includes("-") &&
+			!numStr.includes(".") &&
 			isNumberCharacter;
 	}
 }
