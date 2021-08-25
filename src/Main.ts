@@ -1,5 +1,6 @@
 import {Action} from "./helpers/Action";
-import {VersionSyntaxChecker} from "./VersionSyntaxChecker";
+import { NugetAPI } from "./NugetAPI";
+import {VersionChecker} from "./VersionChecker";
 
 
 /**
@@ -15,16 +16,26 @@ export class Application {
 		
 		try {
 			// Refer to the action.yml file for the list of inputs setup for the action
-			const nugetPackageName: string = action.getInput("nuget-package-name");
 			const version: string = action.getInput("version");
 			const checkNuget: string = action.getInput("check-nuget");
 			const failIfNugetVersionExists: string = action.getInput("fail-if-nuget-version-exists");
 
-			const versionChecker: VersionSyntaxChecker = new VersionSyntaxChecker();
+			const nugetAPI: NugetAPI = new NugetAPI();
+			const versionChecker: VersionChecker = new VersionChecker(nugetAPI);
+
+			if (checkNuget === "true") {
+				const isValid: boolean = await versionChecker.isValid(version);
+
+				console.log(`Is Valid: ${isValid}`);
+			}
 
 			return await Promise.resolve();
 		} catch (error) {
-			throw error;
+			if (typeof error === "string") {
+				return await Promise.reject(new Error(error.toString()));
+			} else {
+				return await Promise.reject(error);
+			}
 		}
 	}
 }
