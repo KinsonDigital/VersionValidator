@@ -5,8 +5,8 @@ import { VersionChecker } from "../src/VersionChecker";
 
 each([
 	// NO CHANGE TESTS
-	// ["1.2.3", [ "1.2.3" ], false],
-	// ["1.2.3-preview.1", [ "1.2.3-preview.1" ], false],
+	["1.2.3", [ "1.2.3" ], false],
+	["1.2.3-preview.1", [ "1.2.3-preview.1" ], false],
 
 	// SYNTAX TESTS
 	["1.2.3-preview.4", 	[ "1.2.3-preview.4", "1.0.0" ], false],

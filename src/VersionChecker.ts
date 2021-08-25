@@ -1,5 +1,6 @@
 import { IsValidResult } from "./interfaces/IsValidResult";
 import { NugetAPI } from "./NugetAPI";
+import { VersionNumber } from "./Enums";
 
 /**
  * Checks versions to verify if they are the correct syntax, obey
@@ -88,16 +89,16 @@ export class VersionChecker {
 		const latestInPreview: boolean = this.isPreview(latestVersion);
 		const currentInPreview: boolean = this.isPreview(version);
 
-		const latestMajor: number = this.getMajorNumber(latestVersion);
-		const latestMinor: number = this.getMinorNumber(latestVersion);
-		const latestPatch: number = this.getPatchNumber(latestVersion);
+		const latestMajor: number = this.getVersionNum(latestVersion, VersionNumber.Major);
+		const latestMinor: number = this.getVersionNum(latestVersion, VersionNumber.Minor);
+		const latestPatch: number = this.getVersionNum(latestVersion, VersionNumber.Patch);
 		const latestPrevNum: number = latestInPreview
 			? this.getPreviewNumber(latestVersion)
 			: 0;
 
-		const currentMajor: number = this.getMajorNumber(version);
-		const currentMinor: number = this.getMinorNumber(version);
-		const currentPatch: number = this.getPatchNumber(version);
+		const currentMajor: number = this.getVersionNum(version, VersionNumber.Major);
+		const currentMinor: number = this.getVersionNum(version, VersionNumber.Minor);
+		const currentPatch: number = this.getVersionNum(version, VersionNumber.Patch);
 		const currentPrevNum: number = currentInPreview
 			? this.getPreviewNumber(version)
 			: 0;
@@ -153,16 +154,16 @@ export class VersionChecker {
 	private isVersionTooSmall(version: string): boolean {
 		const latestVersion: string = this.getLatestVersion();
 
-		const latestMajor: number = this.getMajorNumber(latestVersion);
-		const latestMinor: number = this.getMinorNumber(latestVersion);
-		const latestPatch: number = this.getPatchNumber(latestVersion);
+		const latestMajor: number = this.getVersionNum(latestVersion, VersionNumber.Major);
+		const latestMinor: number = this.getVersionNum(latestVersion, VersionNumber.Minor);
+		const latestPatch: number = this.getVersionNum(latestVersion, VersionNumber.Patch);
 		const latestPrevNum: number = this.isPreview(latestVersion)
 			? this.getPreviewNumber(latestVersion)
 			: 0;
-
-		const currentMajor: number = this.getMajorNumber(version);
-		const currentMinor: number = this.getMinorNumber(version);
-		const currentPatch: number = this.getPatchNumber(version);
+1
+		const currentMajor: number = this.getVersionNum(version, VersionNumber.Major);
+		const currentMinor: number = this.getVersionNum(version, VersionNumber.Minor);
+		const currentPatch: number = this.getVersionNum(version, VersionNumber.Patch);
 		const currentPrevNum: number = this.isPreview(version)
 			? this.getPreviewNumber(version)
 			: 0;
@@ -201,132 +202,60 @@ export class VersionChecker {
 	 */
 	private getLatestVersion (): string {
 		let filteredVersions: string[];
-		let largestMajor: number = 0;
 
-		this.publishedVersions.forEach(v => {
-			const currentMajor: number = this.getMajorNumber(v);
+		// Filter out major versions
+		filteredVersions = this.filterByVersionNumber(this.publishedVersions, VersionNumber.Major);
 
-			largestMajor = currentMajor > largestMajor
-				? currentMajor
-				: largestMajor;
-		});
+		// Filter out minor versions
+		filteredVersions = this.filterByVersionNumber(filteredVersions, VersionNumber.Minor);
 
-		filteredVersions = this.publishedVersions.filter(v => {
-			return this.getMajorNumber(v) === largestMajor;
-		});
+		// Filter out patch versions
+		filteredVersions = this.filterByVersionNumber(filteredVersions, VersionNumber.Patch);
 
-		let largestMinor: number = 0;
-
-		filteredVersions.forEach(v => {
-			const currentMinor: number = this.getMinorNumber(v);
-
-			largestMinor = currentMinor > largestMinor
-				? currentMinor
-				: largestMinor;
-		});
-
-		filteredVersions = filteredVersions.filter(v => {
-			return this.getMinorNumber(v) === largestMinor;
-		});
-
-		let largestPatch: number = 0;
-
-		filteredVersions.forEach(v => {
-			const currentPatch: number = this.getPatchNumber(v);
-
-			largestPatch = currentPatch > largestPatch
-				? currentPatch
-				: largestPatch;
-		});
-
-		filteredVersions = filteredVersions.filter(v => {
-			return this.getPatchNumber(v) === largestPatch;
-		});
-
-		// If there are any preview versions
+		// If any preview versions are left, filter out preview versions
 		if (filteredVersions.some(v => v.includes("-preview."))) {
-			filteredVersions = filteredVersions.filter(v => v.includes("-preview."));
-
-			let largestPrevNum: number = 0;
-
-			filteredVersions.forEach(v => {
-				const currentPrevNum: number = this.getPreviewNumber(v);
-
-				largestPrevNum = currentPrevNum > largestPrevNum
-					? currentPrevNum
-					: largestPrevNum;
-			});
-
-			filteredVersions = filteredVersions.filter(v => {
-				return this.getPreviewNumber(v) === largestPrevNum;
-			});
+			filteredVersions = this.filterByVersionNumber(filteredVersions, VersionNumber.Preview);
 		}
 
 		return filteredVersions[0];
 	}
 
-	/**
-	 * Gets the main section from the version.
-	 * @param version The version to get the main version section from.
-	 * @returns The main version section.
-	 * @summary The main section of '1.2.3' or '1.2.3-preview.4' would be '1.2.3'
-	 */
-	private getMainVersionSection (version: string): string {
-		return version.includes("-preview.") ? version.split("-")[0] : version;
+	private filterByVersionNumber (versions: string[], number: VersionNumber): string[] {
+		let largest: number = 0;
+
+		versions.forEach(v => {
+			const current: number = this.getVersionNum(v, number);
+
+			largest = current > largest
+				? current
+				: largest;
+		});
+
+		return versions.filter(v => {
+			return this.getVersionNum(v, number) === largest;
+		});
 	}
 
-	/**
-	 * Gets the major number from the version.
-	 * @param version The version to get the major number from.
-	 * @returns The major number from the version.
-	 * @summary The major number of '1.2.3-preview.4' or '1.2.3' would be '1'.
-	 */
-	private getMajorNumber (version: string): number {
+
+	private getVersionNum (version: string, number: VersionNumber): number {
 		let mainSection: string = version;
 
-		if (this.isPreview(version)) {
-			mainSection = this.getMainVersionSection(version);
+		if (number === VersionNumber.Preview && this.isPreview(version)) {
+			return this.getPreviewNumber(version);
 		}
 
 		const numberSections: string[] = mainSection.split(".");
 
-		return parseInt(numberSections[0]);
-	}
-
-	/**
-	 * Gets the minor number from the version.
-	 * @param version The version to get the minor number from.
-	 * @returns The minor number from the version.
-	 * @summary The minor number of '1.2.3-preview.4' or '1.2.3' would be '2'.
-	 */
-	private getMinorNumber (version: string): number {
-		let mainSection: string = version;
-
-		if (this.isPreview(version)) {
-			mainSection = this.getMainVersionSection(version);
+		switch (number) {
+			case VersionNumber.Major:
+				return parseInt(numberSections[0]);
+			case VersionNumber.Minor:
+				return parseInt(numberSections[1]);
+			case VersionNumber.Patch:
+				return parseInt(numberSections[2]);
+			default:
+				return -1;
 		}
-
-		const numberSections: string[] = mainSection.split(".");
-
-		return parseInt(numberSections[1]);
-	}
-
-	/**
-	 * Gets the patch number from the version.
-	 * @param version The version to get the patch number from.
-	 * @returns The patch number from the version.
-	 * @summary The patch number of '1.2.3-preview.4' or '1.2.3' would be '3'.
-	 */
-	private getPatchNumber (version: string): number {
-		let mainSection: string = version;
-
-		if (this.isPreview(version)) {
-			mainSection = this.getMainVersionSection(version);
-		}
-
-		const numberSections: string[] = mainSection.split(".");
-
-		return parseInt(numberSections[2]);
 	}
 
 	/**
