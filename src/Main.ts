@@ -1,4 +1,5 @@
 import {Action} from "./helpers/Action";
+import { IsValidResult } from "./interfaces/IsValidResult";
 import { NugetAPI } from "./NugetAPI";
 import {VersionChecker} from "./VersionChecker";
 
@@ -24,9 +25,13 @@ export class Application {
 			const versionChecker: VersionChecker = new VersionChecker(nugetAPI);
 
 			if (checkNuget === "true") {
-				const isValid: boolean = await versionChecker.isValid(version);
+				const validResult: IsValidResult = await versionChecker.isValid(version);
 
-				console.log(`Is Valid: ${isValid}`);
+				if (validResult.isValid) {
+					action.info(validResult.message);
+				} else {
+					return await Promise.reject(validResult.message);
+				}
 			}
 
 			return await Promise.resolve();
