@@ -28,30 +28,41 @@ export class VersionChecker {
 	public async isValid (version: string): Promise<IsValidResult> {
 		const isValidSyntax: boolean = this.isValidSyntax(version);
 		this.publishedVersions = await this.nugetAPI.getPublishedVersions();
+
 		const isValidResult: IsValidResult = {
-			isValid: false,
-			message: "NOT SET"
+			isValid: true,
+			message: "Version Valid"
 		};
 		
 		if (isValidSyntax) {
+			// TODO: Add code here to return failure if the package exists
+			// but only if the 'fail-if-nuget-version' input is true
 			if (this.publishedVersions.includes(version)) {
+				isValidResult.isValid = false;
 				isValidResult.message = `The version '${version}' has already been published to nuget.org.`;
-			} else if (this.isVersionTooLarge(version)) {
-				isValidResult.message = `The version '${version}' is too large.`;
-			} else if (this.isVersionTooSmall(version)) {
-				isValidResult.message = `The version '${version}' is too small.`;
-			} else {
-				isValidResult.isValid = true;
-				isValidResult.message = "Version Valid";
+
+				return await Promise.resolve(isValidResult);
+			}
+			
+			const tooLargeResult: IsValidResult = this.isVersionTooLarge(version);
+
+			if (!tooLargeResult.isValid) {
+				return await Promise.resolve(tooLargeResult);
+			}
+			
+			const tooSmallResult: IsValidResult = this.isVersionTooSmall(version);
+
+			if (!tooSmallResult.isValid) {
+				return await Promise.resolve(tooSmallResult);
 			}
 
 			return await Promise.resolve(isValidResult);
 		} else {
-			let validSyntaxMsg: string = "";
-			validSyntaxMsg = "Valid syntax is as follows:";
+			let validSyntaxMsg: string = "Valid syntax is as follows:";
 			validSyntaxMsg += "\n\tProduction Version: <major>.<minor>.<patch>";
 			validSyntaxMsg += "\n\tPreview Version: <major>.<minor>.<patch>-preview.<preview-number>";
-			validSyntaxMsg += "\n\tExample: 1.2.3-preview.4";
+			validSyntaxMsg += "\n\tProduction Example: 1.2.3";
+			validSyntaxMsg += "\n\tPreview Example: 1.2.3-preview.4";
 
 			isValidResult.isValid = false;
 			isValidResult.message = `The version '${version}' syntax is invalid.\n${validSyntaxMsg}`;
@@ -83,7 +94,12 @@ export class VersionChecker {
 	 * @param version The version to check against what is currently published.
 	 * @returns True if the version is too large.
 	 */
-	private isVersionTooLarge (version: string): boolean {
+	private isVersionTooLarge (version: string): IsValidResult {
+		const result: IsValidResult = {
+			isValid: true,
+			message: ""
+		}
+
 		const latestVersion: string = this.getLatestVersion();
 
 		const latestInPreview: boolean = this.isPreview(latestVersion);
@@ -115,34 +131,77 @@ export class VersionChecker {
 		if (latestInPreview) {
 			// If the major, minor, or patch has changed
 			if (!isMajorUnchanged || !isMinorUnchanged || !isPatchUnchanged) {
-				return true;
+				result.isValid = false;
+				
+				result.message = "Cannot change the major, minor, or patch while the latest is in preview.";
+				result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+				result.message += `\nAttempted Version: ${version}`;
+
+				return result;
 			}
 		}
 
 		// If the major, minor, patch section has not been changed, check preview changes
 		if (isMajorUnchanged && isMinorUnchanged && isPatchUnchanged) {
-			return currentPrevNum - latestPrevNum > 1;
+			// If the attempted preview number increase is too large
+			if (currentPrevNum - latestPrevNum > 1) {
+				result.isValid = false;
+				result.message = "The preview number is too large.";
+				result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+				result.message += `\nAttempted Version: ${version}`;
+
+				return result;
+			}
 		} else {
 			if (isMajorIncremented) {
-				return currentMajor - latestMajor > 1 ||
-					currentMinor > 0 ||
-					currentPatch > 0 ||
-					currentPrevNum - latestPrevNum > 1;
+				// If the major is too large, or the minor or patch have been incremented,
+				// of the preview number is too large.
+				if (currentMajor - latestMajor > 1 ||
+					currentMinor > 0 || currentPatch > 0 ||
+					currentPrevNum - latestPrevNum > 1) {
+					result.isValid = false;
+
+					result.message = "When incrementing the major, it can only be increased by 1.";
+					result.message += "\nWhen incrementing the major, the minor and patch must must be 0.";
+					result.message += "\nWhen incrementing the major, can only increased the preview number by 1.";
+					result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+					result.message += `\nAttempted Version: ${version}`;
+
+					return result;
+				}
 			}
 	
 			if (isMinorIncremented) {
-				return currentMinor - latestMinor > 1 ||
-					currentPatch > 0 ||
-					currentPrevNum - latestPrevNum > 1;
+				if (currentMinor - latestMinor > 1 || currentPatch > 0 ||
+					currentPrevNum - latestPrevNum > 1) {
+					result.isValid = false;
+
+					result.message = "When incrementing the minor, it can only be increased by 1.";
+					result.message += "\nWhen incrementing the minor, the patch must be 0.";
+					result.message += "\nWhen incrementing the minor, can only increased the preview number by 1.";
+					result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+					result.message += `\nAttempted Version: ${version}`;
+
+					return result;
+				}
 			}
 	
 			if (isPatchIncremented) {
-				return currentPatch - latestPatch > 1 ||
-				currentPrevNum - latestPrevNum > 1;
+				if (currentPatch - latestPatch > 1 ||
+					currentPrevNum - latestPrevNum > 1) {
+					result.isValid = false;
+
+					result.message = "When incrementing the patch, it can only be increased by 1.";
+					result.message += "\nWhen incrementing the minor, can only increased the preview number by 1.";
+					result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+					result.message += `\nAttempted Version: ${version}`;
+
+					return result;
+				}
 			}
 		}
 
-		return false;
+		return result;
 	}
 
 	/**
@@ -151,7 +210,12 @@ export class VersionChecker {
 	 * @param version The version to check against what is currently published.
 	 * @returns True if the version is too small.
 	 */
-	private isVersionTooSmall(version: string): boolean {
+	private isVersionTooSmall(version: string): IsValidResult {
+		const result: IsValidResult = {
+			isValid: true,
+			message: ""
+		};
+
 		const latestVersion: string = this.getLatestVersion();
 
 		const latestMajor: number = this.getVersionNum(latestVersion, VersionNumber.Major);
@@ -160,7 +224,7 @@ export class VersionChecker {
 		const latestPrevNum: number = this.isPreview(latestVersion)
 			? this.getPreviewNumber(latestVersion)
 			: 0;
-1
+
 		const currentMajor: number = this.getVersionNum(version, VersionNumber.Major);
 		const currentMinor: number = this.getVersionNum(version, VersionNumber.Minor);
 		const currentPatch: number = this.getVersionNum(version, VersionNumber.Patch);
@@ -178,22 +242,48 @@ export class VersionChecker {
 
 		// If the major, minor, patch section has not been changed, check preview changes
 		if (isMajorUnchanged && isMinorUnchanged && isPatchUnchanged) {
-			return currentPrevNum < latestPrevNum;
+			// If preview number is smaller then the latest published
+			if (currentPrevNum < latestPrevNum) {
+				result.isValid = false;
+				result.message = "The version is smaller then the latest published version.";
+				result.message += "\nThe preview number is too small.";
+				result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+				result.message += `\nAttempted Version: ${version}`;
+
+				return result;
+			}
 		} else {
 			if (isMajorDecremented) {
-				return true;
+				result.isValid = false;
+				result.message = "The version is smaller then the latest published version.";
+				result.message += "\nThe major number is too small.";
+				result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+				result.message += `\nAttempted Version: ${version}`;
+
+				return result;
 			}
 			
 			if (isMajorUnchanged && isMinorDecremented) {
-				return true;
-			}
+				result.isValid = false;
+				result.message = "The version is smaller then the latest published version.";
+				result.message += "\nThe minor number is too small.";
+				result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+				result.message += `\nAttempted Version: ${version}`;
+
+				return result;			}
 			
 			if (isMajorUnchanged && isMinorUnchanged && isPatchDecremented) {
-				return true;
+				result.isValid = false;
+				result.message = "The version is smaller then the latest published version.";
+				result.message += "\nThe patch number is too small.";
+				result.message += `\nLatest Published Preview Version: ${latestVersion}`;
+				result.message += `\nAttempted Version: ${version}`;
+
+				return result;
 			}
 		}
 
-		return false;
+		return result;
 	}
 
 	/**
