@@ -32,7 +32,6 @@ if (args.length === 1) {
             break;
         default:
             throw new Error(`Unknown clean command '${val}'`);
-            break;
     }
     
     // Delete the directory if it exists
