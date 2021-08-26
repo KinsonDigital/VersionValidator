@@ -11,8 +11,6 @@ export class NugetAPI {
 	 * @returns An asynchronous operation with return type boolean that indicates if the nuget package with the version exists.
 	 */
 	public async getPublishedVersions (): Promise<string[]> {
-		console.log("I HAVE BEEN INVOOOOOKED!!!");
-		
 		return await new Promise<string[]>((resolve, reject) => {
 			const action: Action = new Action();
 			const packageName: string = action.getInput("nuget-package-name");
