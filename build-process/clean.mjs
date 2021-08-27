@@ -42,6 +42,7 @@ if (args.length === 1) {
         { nodir: true, dot: true});
 
         const progressBar = new cliProgress.SingleBar({}, cliProgress.shades_classic);
+
         progressBar.start(result.length, 0);
 
         for (let i = 0; i < result.length; i++) {
@@ -58,12 +59,12 @@ if (args.length === 1) {
                 if (error) {
                     console.log(error);
                 }
-            });
+        });
 
         progressBar.update(result.length);
         progressBar.stop();
 
-        stdout.write("Deletion complete\n");
+        stdout.write("Deletion complete\n\n");
     } else {
         console.log(`Deletion of directory '${dirName}' skipped.  Directory already deleted.`);
     }

@@ -5,10 +5,10 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
+        "**/*.log": true,
         "**/node_modules": true,
         "**/dist": true,
-        "**/bin": true,
-        "**/*.log": true
+        "**/bin": false
     },
     "cSpell.words": [
         "CASL",

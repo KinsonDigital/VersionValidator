@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Launch",
-            "program": "${workspaceFolder}/bin/src/main.js",
+            "program": "${workspaceFolder}/bin/main.js",
             "request": "launch",
             "preLaunchTask": "Build",
             "skipFiles": [
