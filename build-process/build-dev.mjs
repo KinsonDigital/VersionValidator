@@ -18,7 +18,11 @@ if (existsSync(nodeModulesPath) === false) {
 
 stdout.write("\nBuilding GitHub Action . . . ");
 
-// Compile the typescript files to the bin folder
-execSync("tsc", { cwd: process.cwd() });
+try {
+    // Compile the typescript files to the bin folder
+    execSync("tsc", { cwd: process.cwd() });
+} catch (error) {
+    console.error(`\n${error.stdout.toString()}`);
+}
 
 process.stdout.write("Build Complete\n");

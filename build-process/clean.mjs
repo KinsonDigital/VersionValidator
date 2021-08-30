@@ -38,8 +38,7 @@ if (args.length === 1) {
     if (existsSync(dirPath)) {
         console.log(`\n${message}`);
 
-        let result = glob.sync(`${dirPath}/**/*.*`,
-        { nodir: true, dot: true});
+        let result = glob.sync(`${dirPath}/**/*.*`, { nodir: true, dot: true});
 
         const progressBar = new cliProgress.SingleBar({}, cliProgress.shades_classic);
 
