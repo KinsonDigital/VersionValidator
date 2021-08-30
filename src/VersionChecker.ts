@@ -2,6 +2,7 @@ import { IsValidResult } from "./interfaces/IsValidResult";
 import { VersionNumber } from "./Enums";
 import { inject, injectable } from "tsyringe";
 import { INugetAPI } from "./interfaces/INugetAPI";
+import { IAction } from "./helpers/IAction";
 
 /**
  * Checks versions to verify if they are the correct syntax, obey
@@ -14,14 +15,18 @@ export class VersionChecker {
 	
 	private readonly nugetAPI: INugetAPI;
 	
+	private readonly action: IAction;
+
 	private publishedVersions: string[] = [];
 
 	/**
 	 * Creates a new instance of VersionChecker.
 	 * @param nugetAPI Gets information from nuget.org
 	 */
-	constructor (@inject("INugetAPI") nugetAPI: INugetAPI) {
+	constructor (@inject("INugetAPI") nugetAPI: INugetAPI,
+		@inject("IAction") action: IAction) {
 		this.nugetAPI = nugetAPI;
+		this.action = action;
 	}
 	
 	/**
@@ -39,13 +44,16 @@ export class VersionChecker {
 		};
 
 		if (isValidSyntax) {
-			// TODO: Add code here to return failure if the package exists
-			// but only if the 'fail-if-nuget-version' input is true
-			if (this.publishedVersions.includes(version)) {
-				isValidResult.isValid = false;
-				isValidResult.message = `The version '${version}' has already been published to nuget.org.`;
+			const alreadyExistsResult: IsValidResult = this.versionAlreadyExists(version);
 
-				return await Promise.resolve(isValidResult);
+			if (alreadyExistsResult.isValid) {
+				/* eslint-disable @typescript-eslint/quotes */
+				isValidResult.message = `\n💡 - To check if the version already exists in nuget.org,`;
+				isValidResult.message += `\nmake sure to set the 'check-nuget' and 'fail-if-nuget-version-exists'`;
+				isValidResult.message += ` action inputs to 'true'.\n`;
+				/* eslint-enable @typescript-eslint/quotes */				
+			} else {
+				return await Promise.resolve(alreadyExistsResult);
 			}
 			
 			const tooLargeResult: IsValidResult = this.isVersionTooLarge(version);
@@ -93,6 +101,32 @@ export class VersionChecker {
 	}
 
 	/**
+	 * Returns a value indicating if the given version already exists in nuget.org.
+	 * @param version The version to check.
+	 * @returns True if the given version already is published to nuget.org.
+	 */
+	private versionAlreadyExists (version: string): IsValidResult {
+		const result: IsValidResult = {
+			isValid: true,
+			message: "",
+		};
+
+		const checkNuget: string = this.action.getInput("check-nuget");
+		const failIfNugetVersionExists: string = this.action.getInput("fail-if-nuget-version-exists");
+
+		if (checkNuget === "true" &&
+			failIfNugetVersionExists === "true" &&
+			this.publishedVersions.includes(version)) {
+			result.isValid = false;
+			result.message = `The version '${version}' has already been published to nuget.org.`;
+
+			return result;
+		}
+
+		return result;
+	}
+
+	/**
 	 * Returns a value indicating if the given version is too large compared to
 	 * the latest version currently published in nuget.org
 	 * @param version The version to check against what is currently published.
@@ -103,6 +137,12 @@ export class VersionChecker {
 			isValid: true,
 			message: "",
 		};
+
+		const checkNuget: string = this.action.getInput("check-nuget");
+
+		if (checkNuget === "false") {
+			return result;
+		}
 
 		const latestVersion: string = this.getLatestVersion();
 
@@ -358,10 +398,6 @@ export class VersionChecker {
 	private getVersionNum (version: string, number: VersionNumber): number {
 		let mainSection: string = version;
 
-		if (number === VersionNumber.Preview && this.isPreview(version)) {
-			return this.getPreviewNumber(version);
-		}
-
 		const numberSections: string[] = mainSection.split(".");
 
 		switch (number) {
@@ -371,8 +407,12 @@ export class VersionChecker {
 				return parseInt(numberSections[1]);
 			case VersionNumber.Patch:
 				return parseInt(numberSections[2]);
-			default:
-				return -1;
+			case VersionNumber.Preview:
+				if (this.isPreview(version)) {
+					return this.getPreviewNumber(version);
+				} else  {
+					return -1;
+				}
 		}
 	}
 

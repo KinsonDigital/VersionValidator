@@ -32,18 +32,14 @@ export class Application {
 		try {
 			// Refer to the action.yml file for the list of inputs setup for the action
 			const version: string = action.getInput("version");
-			const checkNuget: string = action.getInput("check-nuget");
-			const failIfNugetVersionExists: string = action.getInput("fail-if-nuget-version-exists");
+			
+			const versionChecker: VersionChecker = container.resolve(VersionChecker);
+			const validResult: IsValidResult = await versionChecker.isValid(version);
 
-			if (checkNuget === "true") {
-				const versionChecker: VersionChecker = container.resolve(VersionChecker);
-				const validResult: IsValidResult = await versionChecker.isValid(version);
-
-				if (validResult.isValid) {
-					action.info(validResult.message);
-				} else {
-					return await Promise.reject(validResult.message);
-				}
+			if (validResult.isValid) {
+				action.info(validResult.message);
+			} else {
+				return await Promise.reject(validResult.message);
 			}
 
 			return await Promise.resolve();
