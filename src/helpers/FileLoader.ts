@@ -5,7 +5,7 @@ import { IFileLoader } from "./IFileLoader";
 /**
  * Loads data from a file.
  */
- @injectable()
+@injectable()
 export class FileLoader implements IFileLoader {
 	/**
      * @inheritdoc

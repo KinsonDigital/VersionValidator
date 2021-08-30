@@ -13,12 +13,12 @@ export class Action implements IAction {
 
 	private devEnvOutputs: Record<string, any> = {};
 
-	private requiredInputs: string[] = ["nuget-package-name", "version",];
+	private requiredInputs: string[] = ["nuget-package-name", "version", ];
 
 	/**
 	 * Creates a new instance of ActionInputs
 	 */
-	constructor(@inject("IEnvironment") environment: IEnvironment) {
+	constructor (@inject("IEnvironment") environment: IEnvironment) {
 		this.environment = environment;
 	}
 
@@ -27,7 +27,7 @@ export class Action implements IAction {
 	 * @param name The name of the input.
 	 * @returns The value of the given input.
 	 */
-	public getInput(name: string): string {
+	public getInput (name: string): string {
 		if (this.environment.isDevelop()) {
 			// Development version pulls from the 'env.json' file for testing
 			let isRequired: boolean = this.requiredInputs.includes(name);
@@ -50,7 +50,7 @@ export class Action implements IAction {
 	 * @param name The name of the output.
 	 * @param value The value of the output.
 	 */
-	public setOutput(name: string, value: string): void {
+	public setOutput (name: string, value: string): void {
 		if (this.environment.isDevelop()) {
 			this.devEnvOutputs[name] = value;
 		} else if (this.environment.isProd()) {
@@ -64,7 +64,7 @@ export class Action implements IAction {
 	 * Writes info to log with console.log. 
 	 * @param message Info message.
 	 */
-	public info(message: string): void {
+	public info (message: string): void {
 		if (this.environment.isDevelop()) {
 			console.info(message);
 		} else if (this.environment.isProd()) {
@@ -78,7 +78,7 @@ export class Action implements IAction {
 	 * Adds a warning issue.
 	 * @param message Warning issue message.  Errors will be converted to string via toString().
 	 */
-	public warning(message: string): void {
+	public warning (message: string): void {
 		if (this.environment.isDevelop()) {
 			console.warn(message);
 		} else if (this.environment.isProd()) {
@@ -92,7 +92,7 @@ export class Action implements IAction {
 	 * Adds and error issue.
 	 * @param message Error issue message.  Errors will be converted to string via toString().
 	 */
-	public setFailed(message: string | Error): void {
+	public setFailed (message: string | Error): void {
 		if (this.environment.isDevelop()) {
 			let errorMessage: string = "";
 			const paramType: string = typeof message;
