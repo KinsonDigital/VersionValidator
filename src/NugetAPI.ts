@@ -1,11 +1,12 @@
 import axios, {AxiosResponse} from "axios";
-import { Action } from "./helpers/Action";
+import {Action} from "./helpers/Action";
+import {INugetAPI} from "./interfaces/INugetAPI";
 import {PackageVersionResponse} from "./interfaces/PackageVersionResponse";
 
 /**
  * Makes various calls to the nuget.org API to collect information about nuget packages.
  */
-export class NugetAPI {
+export class NugetAPI implements INugetAPI {
 	/**
 	 * Returns the list of nuget packaged versions published on nuget.org.
 	 * @returns An asynchronous operation with return type boolean that indicates if the nuget package with the version exists.

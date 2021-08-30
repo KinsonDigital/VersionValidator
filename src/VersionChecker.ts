@@ -1,12 +1,14 @@
 import { IsValidResult } from "./interfaces/IsValidResult";
 import { NugetAPI } from "./NugetAPI";
 import { VersionNumber } from "./Enums";
+import { inject, injectable } from "tsyringe";
 
 /**
  * Checks versions to verify if they are the correct syntax, obey
  * the rules of semantic versioning, and do not conflict with currently
  * published version on nuget.org
  */
+ @injectable()
 export class VersionChecker {
 	private readonly numbers: string[] = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ];
 	private readonly nugetAPI: NugetAPI;
@@ -16,7 +18,7 @@ export class VersionChecker {
 	 * Creates a new instance of VersionChecker.
 	 * @param nugetAPI Gets information from nuget.org
 	 */
-	constructor (nugetAPI: NugetAPI) {
+	constructor (@inject("INugetAPI") nugetAPI: NugetAPI) {
 		this.nugetAPI = nugetAPI;
 	}
 	
@@ -33,7 +35,7 @@ export class VersionChecker {
 			isValid: true,
 			message: "Version Valid"
 		};
-		
+
 		if (isValidSyntax) {
 			// TODO: Add code here to return failure if the package exists
 			// but only if the 'fail-if-nuget-version' input is true

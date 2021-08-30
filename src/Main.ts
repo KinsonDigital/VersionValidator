@@ -1,5 +1,6 @@
 import {Action} from "./helpers/Action";
 import { IsValidResult } from "./interfaces/IsValidResult";
+import IoC from "./IoC";
 import { NugetAPI } from "./NugetAPI";
 import {VersionChecker} from "./VersionChecker";
 
@@ -21,8 +22,8 @@ export class Application {
 			const checkNuget: string = action.getInput("check-nuget");
 			const failIfNugetVersionExists: string = action.getInput("fail-if-nuget-version-exists");
 
-			const nugetAPI: NugetAPI = new NugetAPI();
-			const versionChecker: VersionChecker = new VersionChecker(nugetAPI);
+			// const nugetAPI: NugetAPI = new NugetAPI();
+			const versionChecker: VersionChecker = IoC.Container.resolve(VersionChecker);
 
 			if (checkNuget === "true") {
 				const validResult: IsValidResult = await versionChecker.isValid(version);

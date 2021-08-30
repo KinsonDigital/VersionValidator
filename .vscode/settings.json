@@ -8,14 +8,17 @@
         "**/*.log": true,
         "**/node_modules": true,
         "**/dist": true,
-        "**/bin": false
+        "**/bin": true,
+        "**/.nyc_output": true
     },
     "cSpell.words": [
         "CASL",
         "Kinson",
         "creds",
         "eslinter",
+        "ests",
         "jsxdev",
+        "lcov",
         "linebreak",
         "nodir",
         "nuget",
