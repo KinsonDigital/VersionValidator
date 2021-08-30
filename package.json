@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "vget",
   "scripts": {
+    "prelint": "cls",
     "lint": "eslint . --ext .ts",
     "pull:packages": "yarn install",
     "clean:bin": "node build-process/clean.mjs \"bin\"",

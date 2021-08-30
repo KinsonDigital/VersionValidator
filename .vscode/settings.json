@@ -26,6 +26,7 @@
         "paren",
         "parens",
         "postclean",
+        "prelint",
         "prerebuild",
         "readonly",
         "repos",
