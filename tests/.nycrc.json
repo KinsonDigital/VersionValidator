@@ -1,0 +1,15 @@
+{
+    "all": true,
+    "reporter": [ "lcov", "text"],
+    "extensions": ["ts"],
+    "include": ["src/**/*.ts"],
+    "exclude": [
+        "build-process",
+        "coverage",
+        "tests",
+        "dist",
+        "*.js",
+        "src/**/NugetAPI.ts",
+        "src/**/FileLoader.ts"
+    ]
+}

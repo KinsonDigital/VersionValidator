@@ -1,21 +1,24 @@
 import {existsSync} from "fs";
-import {FileLoader} from "../FileLoader";
 import {ActionInputs} from "../interfaces/ActionInputs";
+import { inject, injectable } from "tsyringe";
+import { IFileLoader } from "./IFileLoader";
+import { IEnvironment } from "./IEnvironment";
 
 /**
- * Represents the environment.
+ * Returns the current environment.
  */
-export class Environment {
+ @injectable()
+export class Environment implements IEnvironment {
 	/* eslint-disable @typescript-eslint/lines-between-class-members */
-	private fileLoader: FileLoader;
+	private fileLoader: IFileLoader;
 	private inputs: ActionInputs;
 	/* eslint-enable @typescript-eslint/lines-between-class-members */
 
 	/**
      * Creates a new instance of Environment.
      */
-	constructor () {
-    	this.fileLoader = new FileLoader();
+	constructor (@inject("IFileLoader") fileLoader: IFileLoader) {
+    	this.fileLoader = fileLoader;
 		let fileData: string = "";
 
 		// The env.json file will not exist in production and is not
@@ -37,8 +40,7 @@ export class Environment {
 	}
 	
 	/**
-     * Returns a value indicating if in a production environment.
-     * @returns True if the environment is production.
+	 * @inheritdoc
      */
 	public isProd (): boolean {
 		/* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -64,8 +66,7 @@ export class Environment {
 	}
 
 	/**
-     * Returns a value indicating if in a development environment.
-     * @returns True if the environment is development.
+	 * @inheritdoc
      */
 	public isDevelop (): boolean {
 		/* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -81,12 +82,10 @@ export class Environment {
 	}
 
 	/**
-     * Returns the value of a variable that matches the given name.
-     * @param varName The name of the variable.
-     * @returns The value of the given variable.
+     * @inheritdoc
      */
 	public getVarValue (varName: string, throwErrorWhenNotFound: boolean = true): string {
-    	for (const [key, value, ] of Object.entries(this.inputs)) {
+    	for (const [key, value] of Object.entries(this.inputs)) {
     		if (key === varName) {
     			return value;
     		}

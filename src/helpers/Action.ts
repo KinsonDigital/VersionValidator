@@ -1,31 +1,34 @@
-import {getInput, setOutput, info, warning, setFailed, InputOptions} from "@actions/core";
-import {Environment as Environment} from "./Environment";
+import { getInput, setOutput, info, warning, setFailed, InputOptions } from "@actions/core";
+import { inject, injectable } from "tsyringe";
+import { IAction } from "./IAction";
+import { IEnvironment } from "./IEnvironment";
 
 /**
  * Represents different action functionality.
  * This wraps @action/github functionality for the purpose of testing in the DEV environment.
  */
-export class Action {
-	private environment: Environment;
-	
+@injectable()
+export class Action implements IAction {
+	private environment: IEnvironment;
+
 	private devEnvOutputs: Record<string, any> = {};
-	
-	private requiredInputs: string[] = [ "nuget-package-name", "version", ];
+
+	private requiredInputs: string[] = ["nuget-package-name", "version",];
 
 	/**
-     * Creates a new instance of ActionInputs
-     */
-	constructor () {
-    	this.environment = new Environment();
+	 * Creates a new instance of ActionInputs
+	 */
+	constructor(@inject("IEnvironment") environment: IEnvironment) {
+		this.environment = environment;
 	}
 
 	/**
-     * Returns the value of the input that matches the given input.
-     * @param name The name of the input.
-     * @returns The value of the given input.
-     */
-	public getInput (name: string): string {
-    	if (this.environment.isDevelop()) {
+	 * Returns the value of the input that matches the given input.
+	 * @param name The name of the input.
+	 * @returns The value of the given input.
+	 */
+	public getInput(name: string): string {
+		if (this.environment.isDevelop()) {
 			// Development version pulls from the 'env.json' file for testing
 			let isRequired: boolean = this.requiredInputs.includes(name);
 
@@ -37,7 +40,7 @@ export class Action {
 			};
 
 			return getInput(name, options);
-    	} else {
+		} else {
 			throw new Error("Unknown environment.");
 		}
 	}
@@ -47,7 +50,7 @@ export class Action {
 	 * @param name The name of the output.
 	 * @param value The value of the output.
 	 */
-	public setOutput (name: string, value: string): void {
+	public setOutput(name: string, value: string): void {
 		if (this.environment.isDevelop()) {
 			this.devEnvOutputs[name] = value;
 		} else if (this.environment.isProd()) {
@@ -61,7 +64,7 @@ export class Action {
 	 * Writes info to log with console.log. 
 	 * @param message Info message.
 	 */
-	public info (message: string): void {
+	public info(message: string): void {
 		if (this.environment.isDevelop()) {
 			console.info(message);
 		} else if (this.environment.isProd()) {
@@ -75,7 +78,7 @@ export class Action {
 	 * Adds a warning issue.
 	 * @param message Warning issue message.  Errors will be converted to string via toString().
 	 */
-	public warning (message: string): void {
+	public warning(message: string): void {
 		if (this.environment.isDevelop()) {
 			console.warn(message);
 		} else if (this.environment.isProd()) {
@@ -89,7 +92,7 @@ export class Action {
 	 * Adds and error issue.
 	 * @param message Error issue message.  Errors will be converted to string via toString().
 	 */
-	public setFailed (message: string | Error): void {
+	public setFailed(message: string | Error): void {
 		if (this.environment.isDevelop()) {
 			let errorMessage: string = "";
 			const paramType: string = typeof message;

@@ -15,7 +15,7 @@
     "rebuild": "yarn run build",
     "run:app": "nodemon --config nodemon.json src/main.ts",
     "pretests": "cls",
-    "tests": "npx nyc -r=lcov -r=text jasmine-ts --config=./tests/support/jasmine.json",
+    "tests": "nyc --nycrc-path=./tests/.nycrc.json jasmine-ts --config=./tests/support/jasmine.json",
     "tests:watch": "nodemon --ext ts --exec yarn run tests",
     "publish:app": "node build-process/publish.mjs"
   },

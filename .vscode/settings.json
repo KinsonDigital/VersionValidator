@@ -22,6 +22,7 @@
         "linebreak",
         "nodir",
         "nuget",
+        "nycrc",
         "paren",
         "parens",
         "postclean",

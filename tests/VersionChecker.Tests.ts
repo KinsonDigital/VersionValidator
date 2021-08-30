@@ -10,7 +10,7 @@ eachParams3([
  	{ p1: "1.2.3", p2: [ "1.2.3" ], p3: false },
 	{ p1: "1.2.3-preview.1", p2: ["1.2.3-preview.1"], p3: false },
 
-	// // SYNTAX TESTS
+	// SYNTAX TESTS
 	{ p1: "1.2.3-preview.4", 	p2: ["1.2.3-preview.4", "1.0.0"], p3: false },
 	{ p1: "v1.2.3-preview.5",	p2: ["1.2.3", "1.0.0"], p3: false }, // Preview Too Large
 	{ p1: "", 					p2: ["1.2.3", "1.0.0"], p3: false }, // Empty Version

@@ -20,5 +20,5 @@ export enum VersionNumber {
 	/**
 	 * The preview number of a preview version.
 	 */
-	Preview = 4
+	Preview = 4,
 }

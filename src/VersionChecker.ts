@@ -1,24 +1,26 @@
 import { IsValidResult } from "./interfaces/IsValidResult";
-import { NugetAPI } from "./NugetAPI";
 import { VersionNumber } from "./Enums";
 import { inject, injectable } from "tsyringe";
+import { INugetAPI } from "./interfaces/INugetAPI";
 
 /**
  * Checks versions to verify if they are the correct syntax, obey
  * the rules of semantic versioning, and do not conflict with currently
  * published version on nuget.org
  */
- @injectable()
+@injectable()
 export class VersionChecker {
-	private readonly numbers: string[] = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ];
-	private readonly nugetAPI: NugetAPI;
+	private readonly numbers: string[] = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ];
+	
+	private readonly nugetAPI: INugetAPI;
+	
 	private publishedVersions: string[] = [];
 
 	/**
 	 * Creates a new instance of VersionChecker.
 	 * @param nugetAPI Gets information from nuget.org
 	 */
-	constructor (@inject("INugetAPI") nugetAPI: NugetAPI) {
+	constructor (@inject("INugetAPI") nugetAPI: INugetAPI) {
 		this.nugetAPI = nugetAPI;
 	}
 	
@@ -33,7 +35,7 @@ export class VersionChecker {
 
 		const isValidResult: IsValidResult = {
 			isValid: true,
-			message: "Version Valid"
+			message: "Version Valid",
 		};
 
 		if (isValidSyntax) {
@@ -99,8 +101,8 @@ export class VersionChecker {
 	private isVersionTooLarge (version: string): IsValidResult {
 		const result: IsValidResult = {
 			isValid: true,
-			message: ""
-		}
+			message: "",
+		};
 
 		const latestVersion: string = this.getLatestVersion();
 
@@ -212,10 +214,10 @@ export class VersionChecker {
 	 * @param version The version to check against what is currently published.
 	 * @returns True if the version is too small.
 	 */
-	private isVersionTooSmall(version: string): IsValidResult {
+	private isVersionTooSmall (version: string): IsValidResult {
 		const result: IsValidResult = {
 			isValid: true,
-			message: ""
+			message: "",
 		};
 
 		const latestVersion: string = this.getLatestVersion();
@@ -272,7 +274,8 @@ export class VersionChecker {
 				result.message += `\nLatest Published Preview Version: ${latestVersion}`;
 				result.message += `\nAttempted Version: ${version}`;
 
-				return result;			}
+				return result;			
+			}
 			
 			if (isMajorUnchanged && isMinorUnchanged && isPatchDecremented) {
 				result.isValid = false;
@@ -293,7 +296,7 @@ export class VersionChecker {
 	 * @returns The latest version.
 	 */
 	private getLatestVersion (): string {
-		let filteredVersions: string[];
+		let filteredVersions: string[] = [];
 
 		// Filter out major versions
 		filteredVersions = this.filterByVersionNumber(this.publishedVersions, VersionNumber.Major);
