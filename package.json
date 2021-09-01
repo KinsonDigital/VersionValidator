@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "vget",
   "scripts": {
+    "init:env:json": "node build-process/create-env-file.mjs",
     "prelint": "cls",
     "lint": "eslint . --ext .ts",
     "pull:packages": "yarn install",
