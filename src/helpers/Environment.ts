@@ -1,84 +1,80 @@
-import { existsSync } from "fs";
 import { ActionInputs } from "../interfaces/ActionInputs";
 import { inject, injectable } from "tsyringe";
 import { IFileLoader } from "./IFileLoader";
 import { IEnvironment } from "./IEnvironment";
+import { IFileIO } from "./IFileIO";
+import { CurrentEnvironment } from "../Enums";
 
 /**
  * Returns the current environment.
  */
 @injectable()
 export class Environment implements IEnvironment {
-	/* eslint-disable @typescript-eslint/lines-between-class-members */
 	private fileLoader: IFileLoader;
+
 	private inputs: ActionInputs;
-	/* eslint-enable @typescript-eslint/lines-between-class-members */
+
+	private fileIO: IFileIO;
+
+	private currentEnvironment: CurrentEnvironment = CurrentEnvironment.Development;
 
 	/**
 	 * Creates a new instance of Environment.
 	 */
-	constructor (@inject("IFileLoader") fileLoader: IFileLoader) {
+	constructor (@inject("IFileLoader") fileLoader: IFileLoader,
+				 @inject("IFileIO") fileIO: IFileIO) {
 		this.fileLoader = fileLoader;
-		let fileData: string = "";
+		this.fileIO = fileIO;
+		this.inputs = {
+			"nuget-package-name": "",
+			"version": "",
+			"check-nuget": "false",
+			"fail-if-nuget-version-exists": "false",
+		};
 
 		// The env.json file will not exist in production and is not
 		// committed to the repository.		
-		if (existsSync("./env.json")) {
-			fileData = this.fileLoader.loadEnvFile("./env.json");
-			this.inputs = JSON.parse(fileData);
+		if (this.fileIO.exists("./env.json")) {
+			let fileData: string = this.fileLoader.loadEnvFile("./env.json");
+
+			try {
+				this.inputs = JSON.parse(fileData);
+
+				if (this.hasProperty(this.inputs, "nuget-package-name") &&
+					this.hasProperty(this.inputs, "version") &&
+					this.hasProperty(this.inputs, "check-nuget") && 
+					this.hasProperty(this.inputs, "fail-if-nuget-version-exists")) {
+					this.currentEnvironment = CurrentEnvironment.Development;
+				} else {
+					this.currentEnvironment = CurrentEnvironment.Production;	
+				}
+			} catch (error) {
+				this.currentEnvironment = CurrentEnvironment.Production;
+			}
 		} else {
-			// This branch only runs if a production version.
-			// Set to environment value of production			
-			this.inputs = {
-				environment: "production",
-				nugetPackageName: "",
-				version: "",
-				checkNuget: false,
-				failIfNugetVersionExists: false,
-			};
+			this.currentEnvironment = CurrentEnvironment.Production;
 		}
+	}
+
+	/**
+	 * Gets the current environment.
+	 */
+	public get Environment (): CurrentEnvironment {
+		return this.currentEnvironment;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	public isProd (): boolean {
-		/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-		/* eslint-disable @typescript-eslint/indent */
-		for (const [key, value, ] of Object.entries(this.inputs)) {
-			if (key === "environment") {
-				switch (value.toString().toLowerCase()) {
-					case "prod":
-					case "production":
-					case "":
-					case null:
-					case undefined:
-						return true;
-					default:
-						return false;
-				}
-			}
-		}
-
-		return false;
-		/* eslint-enable @typescript-eslint/no-unsafe-member-access */
-		/* eslint-enable @typescript-eslint/indent */
+		return this.currentEnvironment === CurrentEnvironment.Production;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	public isDevelop (): boolean {
-		/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-		for (const [key, value, ] of Object.entries(this.inputs)) {
-			if (key === "environment") {
-				let stringValue: string = value.toString().toLowerCase();
-				return stringValue === "dev" || stringValue === "develop";
-			}
-		}
-
-		return false;
-		/* eslint-enable @typescript-eslint/no-unsafe-member-access */
+		return this.currentEnvironment === CurrentEnvironment.Development;
 	}
 
 	/**
@@ -95,6 +91,16 @@ export class Environment implements IEnvironment {
 			throw new Error(`Could not find the environment variable '${varName}'.`);
 		}
 
-		return "";
+		return `! ! '${varName}' not found ! !`;
+	}
+
+	/**
+	 * Returns a value indicating if the given property was found on the given object.
+	 * @param obj The object to check the property for.
+	 * @param name The name of the property to check for.
+	 * @returns True if the given property was found on the given object.
+	 */
+	private hasProperty (obj: object, name: string): boolean {
+		return Object.keys(obj).includes(name);
 	}
 }

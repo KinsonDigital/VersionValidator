@@ -1,6 +1,7 @@
 import { container } from "tsyringe";
 import { Action } from "./helpers/Action";
 import { Environment } from "./helpers/Environment";
+import { FileIO } from "./helpers/FileIO";
 import { FileLoader } from "./helpers/FileLoader";
 import { IsValidResult } from "./interfaces/IsValidResult";
 import { NugetAPI } from "./NugetAPI";
@@ -14,6 +15,7 @@ export class Application {
 	 * Creates a new instance of Application.
 	 */
 	constructor () {
+		container.register("IFileIO", {useClass: FileIO, });
 		container.register("INugetAPI", {useClass: NugetAPI, });
 		container.register("IFileLoader", {useClass: FileLoader, });
 		container.register("IEnvironment", {useClass: Environment, });
@@ -32,7 +34,7 @@ export class Application {
 		try {
 			// Refer to the action.yml file for the list of inputs setup for the action
 			const version: string = action.getInput("version");
-			
+
 			const versionChecker: VersionChecker = container.resolve(VersionChecker);
 			const validResult: IsValidResult = await versionChecker.isValid(version);
 

@@ -22,3 +22,18 @@ export enum VersionNumber {
 	 */
 	Preview = 4,
 }
+
+/**
+ * Represents the current environment that the action is running in.
+ */
+export enum CurrentEnvironment {
+	/**
+	 * Development environment for the purpose of development and testing.
+	 */
+	Development = "Development",
+
+	/**
+	 * Production environment.
+	 */
+	Production = "Production",
+}
