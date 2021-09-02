@@ -260,6 +260,12 @@ export class VersionChecker {
 			message: "",
 		};
 
+		const checkNuget: string = this.action.getInput("check-nuget");
+
+		if (checkNuget === "false") {
+			return result;
+		}
+
 		const latestVersion: string = this.getLatestVersion();
 
 		const latestMajor: number = this.getVersionNum(latestVersion, VersionNumber.Major);
