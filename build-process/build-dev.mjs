@@ -4,8 +4,6 @@ import { stdout } from "process";
 
 let nodeModulesPath = `${process.cwd()}\\node_modules`;
 
-console.log(`Current Working Directory: ${process.cwd()}`);
-
 // First check if the node_modules folder exists.
 // If not, pull the npm packages before the build
 if (existsSync(nodeModulesPath) === false) {
@@ -13,16 +11,12 @@ if (existsSync(nodeModulesPath) === false) {
 
     execSync("yarn install", { cwd: process.cwd() });
 
-    stdout.write("Pull complete\n");
+    stdout.write("Pull complete");
 }
 
 stdout.write("\nBuilding GitHub Action . . . ");
 
-try {
-    // Compile the typescript files to the bin folder
-    execSync("tsc", { cwd: process.cwd() });
-} catch (error) {
-    console.error(`\n${error.stdout.toString()}`);
-}
+// Compile the typescript files to the bin folder
+execSync("tsc --outDir bin", { cwd: process.cwd() });
 
 process.stdout.write("Build Complete\n");

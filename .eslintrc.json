@@ -12,13 +12,13 @@
     "plugins": [
         "@typescript-eslint"
     ],
-    "ignorePatterns": ["*.js", "*.mjs", "**/tests/helpers/**"],
+    "ignorePatterns": ["*.js", "*.mjs"],
     "rules": {
         "linebreak-style": [
             "error",
             "windows"
         ],
-        "@typescript-eslint/prefer-for-of": ["off"],
+        "@typescript-eslint/prefer-for-of": ["warn"],
         "@typescript-eslint/no-unsafe-argument": ["error"],
         "@typescript-eslint/prefer-includes": ["error"],
         "@typescript-eslint/prefer-ts-expect-error": ["error"],
@@ -90,7 +90,7 @@
         "@typescript-eslint/no-magic-numbers": ["warn", {
             "ignoreEnums": true,
             "ignoreArrayIndexes": true,
-            "ignore": [0, -1, 1]
+            "ignore": [0, -1]
         }],
         "no-redeclare": "off",
         "@typescript-eslint/no-redeclare": ["error"],
@@ -107,7 +107,7 @@
         "no-useless-constructor": "off",
         "@typescript-eslint/no-useless-constructor": ["warn"],
         "object-curly-spacing": "off",
-        "@typescript-eslint/object-curly-spacing": ["off"],
+        "@typescript-eslint/object-curly-spacing": ["warn"],
         "no-return-await": "off",
         "@typescript-eslint/return-await": ["error", "always"],
         "semi": "off",

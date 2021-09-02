@@ -1,46 +1,53 @@
-import { getInput, setOutput, info, warning, setFailed, InputOptions } from "@actions/core";
-import { inject, injectable } from "tsyringe";
-import { IAction } from "./IAction";
-import { IEnvironment } from "./IEnvironment";
+import {getInput, setOutput, info, warning, setFailed, InputOptions} from "@actions/core";
+import { context } from "@actions/github";
+import {Environment as Environment} from "./environment";
 
 /**
  * Represents different action functionality.
  * This wraps @action/github functionality for the purpose of testing in the DEV environment.
  */
-@injectable()
-export class Action implements IAction {
-	private environment: IEnvironment;
+export class Action {
+	private environment: Environment;
 
 	private devEnvOutputs: Record<string, any> = {};
 
-	private requiredInputs: string[] = ["nuget-package-name", "version", ];
-
 	/**
-	 * Creates a new instance of ActionInputs
-	 */
-	constructor (@inject("IEnvironment") environment: IEnvironment) {
-		this.environment = environment;
+     * Creates a new instance of ActionInputs
+     */
+	constructor () {
+    	this.environment = new Environment();
+		
+
+
 	}
 
 	/**
-	 * Returns the value of the input that matches the given input.
-	 * @param name The name of the input.
-	 * @returns The value of the given input.
-	 */
+     * Returns the value of the input that matches the given input.
+     * @param name The name of the input.
+     * @returns The value of the given input.
+     */
 	public getInput (name: string): string {
-		if (this.environment.isDevelop()) {
+    	if (this.environment.isDevelop()) {
 			// Development version pulls from the 'env.json' file for testing
-			let isRequired: boolean = this.requiredInputs.includes(name);
+			let isRequired: boolean = true;
+
+			if (name === "contains") {
+				isRequired = false;
+			}
 
 			return this.environment.getVarValue(name, isRequired);
 		} else if (this.environment.isProd()) {
 			// Production version pulls the inputs from the YAML file
 			let options: InputOptions = {
-				required: this.requiredInputs.includes(name),
+				required: true,
 			};
 
+			if (name === "contains") {
+				options.required = false;
+			}
+
 			return getInput(name, options);
-		} else {
+    	} else {
 			throw new Error("Unknown environment.");
 		}
 	}

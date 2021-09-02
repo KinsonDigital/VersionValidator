@@ -1,14 +1,13 @@
 import fs from "fs";
-import { injectable } from "tsyringe";
-import { IFileLoader } from "./IFileLoader";
 
 /**
  * Loads data from a file.
  */
-@injectable()
-export class FileLoader implements IFileLoader {
+export class FileLoader {
 	/**
-     * @inheritdoc
+     * Loads the data from a file at the given file path.
+     * @param filePath The path to the file to load.
+     * @returns The file data.
      */
 	public loadEnvFile (filePath: string): string {
 		if (fs.existsSync(filePath)) {

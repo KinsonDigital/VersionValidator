@@ -2,6 +2,3 @@
 *.log
 env.json
 **/bin
-coverage
-.nyc_output
-/tests/**/*.js
