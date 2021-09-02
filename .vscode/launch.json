@@ -6,13 +6,24 @@
     "configurations": [
         {
             "name": "Launch",
-            "program": "${workspaceFolder}/bin/main.js",
+            "program": "${workspaceFolder}/bin/src/main.js",
             "request": "launch",
             "preLaunchTask": "Build",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "type": "pwa-node"
+        },
+        {
+            "name": "Debug Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/jasmine-ts/lib/index",
+            "args": [
+                "--config=${workspaceFolder}/tests/support/jasmine.json",
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }
