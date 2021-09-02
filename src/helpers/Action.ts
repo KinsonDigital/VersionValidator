@@ -1,6 +1,5 @@
 import { getInput, setOutput, info, warning, setFailed, InputOptions } from "@actions/core";
 import { inject, injectable } from "tsyringe";
-import { ActionInputs } from "../interfaces/ActionInputs";
 import { IAction } from "./IAction";
 import { IEnvironment } from "./IEnvironment";
 

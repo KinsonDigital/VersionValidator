@@ -3,14 +3,14 @@ import { CurrentEnvironment } from "../src/Enums";
 import { Environment } from "../src/helpers/Environment";
 import { IFileIO } from "../src/helpers/IFileIO";
 import { IFileLoader } from "../src/helpers/IFileLoader";
-import { ActionInputs } from "../src/interfaces/ActionInputs";
+import { IActionInputs } from "../src/interfaces/IActionInputs";
 import { eachParams2 } from "./utils/utils";
 
 
 describe("Environment ->", () => {
 	let mockLoader: IFileLoader | null = null;
 	let mockFileIO: IFileIO | null = null;
-	let actionInputs: ActionInputs | null = null;
+	let actionInputs: IActionInputs | null = null;
 
 	beforeEach(() => {
 		mockLoader = {
@@ -57,7 +57,7 @@ describe("Environment ->", () => {
 			p2: CurrentEnvironment.Development,
 		},
 	], (envJSON: string, currentEnv: CurrentEnvironment) => {
-		xit(`Environment -> When Parsing Environment JSON -> Runs As \'${currentEnv}\'`, () => {
+		it(`Environment -> When Parsing Environment JSON -> Runs As \'${currentEnv}\'`, () => {
 			// Arrange
 			spyOn(<IFileIO>mockFileIO, "exists").and.returnValue(true);
 			spyOn(<IFileLoader>mockLoader, "loadEnvFile").and.returnValue(envJSON);
@@ -72,7 +72,7 @@ describe("Environment ->", () => {
 		});
 	});
 
-	xit("isProd() -> When Environment JSON Does Not Exist -> Returns True", () => {
+	it("isProd() -> When Environment JSON Does Not Exist -> Returns True", () => {
 		// Arrange
 		spyOn(<IFileIO>mockFileIO, "exists").and.returnValue(false);
 		
@@ -85,7 +85,7 @@ describe("Environment ->", () => {
 		expect(actual).toBe(true);
 	});
 
-	xit("isDevelop() -> When Environment Does Exist -> Returns True", () => {
+	it("isDevelop() -> When Environment Does Exist -> Returns True", () => {
 		// Arrange
 		const testDataJSON: string = JSON.stringify(actionInputs);
 		spyOn(<IFileIO>mockFileIO, "exists").and.returnValue(true);
@@ -100,7 +100,7 @@ describe("Environment ->", () => {
 		expect(actual).toBe(true);
 	});
 
-	xit("getVarValue() -> When Invoked -> Returns Environment Value", () => {
+	it("getVarValue() -> When Invoked -> Returns Environment Value", () => {
 		// Arrange
 		const actionInputsJSON: string = JSON.stringify(actionInputs);
 		spyOn(<IFileIO>mockFileIO, "exists").and.returnValue(true);
@@ -115,7 +115,7 @@ describe("Environment ->", () => {
 		expect(actual).toBe("MyOrg.MyLib");
 	});
 
-	xit("getVarValue() -> When Setup To Throw Error When Not Found -> Throws Correct Error", () => {
+	it("getVarValue() -> When Setup To Throw Error When Not Found -> Throws Correct Error", () => {
 		// Arrange
 		const actionInputsJSON: string = 
 		`{
@@ -139,7 +139,7 @@ describe("Environment ->", () => {
 		}
 	});
 
-	xit("getVarValue() -> When Not Setup To Throw An Error When Not Found -> Returns Correct Result", () => {
+	it("getVarValue() -> When Not Setup To Throw An Error When Not Found -> Returns Correct Result", () => {
 		// Arrange
 		const actionInputsJSON: string = 
 		`{
@@ -161,7 +161,7 @@ describe("Environment ->", () => {
 		expect(actual).toBe("! ! 'unknown-key' not found ! !");
 	});
 
-	xit("Ctor() -> With Issue Parsing Environment JSON -> Setup As Production", () => {
+	it("Ctor() -> With Issue Parsing Environment JSON -> Setup As Production", () => {
 		// Arrange
 		spyOn(<IFileIO>mockFileIO, "exists").and.returnValue(true);
 		spyOn(<IFileLoader>mockLoader, "loadEnvFile").and.returnValue("invalid-json-data");

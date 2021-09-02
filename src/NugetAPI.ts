@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { inject, injectable } from "tsyringe";
 import { IAction } from "./helpers/IAction";
 import { INugetAPI } from "./interfaces/INugetAPI";
-import { PackageVersionResponse } from "./interfaces/PackageVersionResponse";
+import { IPackageVersionResponse } from "./interfaces/IPackageVersionResponse";
 
 /**
  * Makes various calls to the nuget.org API to collect information about nuget packages.
@@ -25,8 +25,8 @@ export class NugetAPI implements INugetAPI {
 
 			let url: string = `https://api.nuget.org/v3-flatcontainer/${packageName}/index.json`;
 
-			axios.get<PackageVersionResponse>(url)
-				.then((response: AxiosResponse<PackageVersionResponse>)  => {
+			axios.get<IPackageVersionResponse>(url)
+				.then((response: AxiosResponse<IPackageVersionResponse>)  => {
 					let versions: string[] = response.data.versions;
 					
 					resolve(versions);

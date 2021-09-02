@@ -1,4 +1,4 @@
-import { ActionInputs } from "../interfaces/ActionInputs";
+import { IActionInputs } from "../interfaces/IActionInputs";
 import { inject, injectable } from "tsyringe";
 import { IFileLoader } from "./IFileLoader";
 import { IEnvironment } from "./IEnvironment";
@@ -12,7 +12,7 @@ import { CurrentEnvironment } from "../Enums";
 export class Environment implements IEnvironment {
 	private fileLoader: IFileLoader;
 
-	private inputs: ActionInputs;
+	private inputs: IActionInputs;
 
 	private fileIO: IFileIO;
 

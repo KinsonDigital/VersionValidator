@@ -1,4 +1,4 @@
-import { IsValidResult } from "./interfaces/IsValidResult";
+import { IValidResult } from "./interfaces/IValidResult";
 import { VersionNumber } from "./Enums";
 import { inject, injectable } from "tsyringe";
 import { INugetAPI } from "./interfaces/INugetAPI";
@@ -34,17 +34,17 @@ export class VersionChecker {
 	 * @param version The version to check.
 	 * @returns True if the version is valid.
 	 */
-	public async isValid (version: string): Promise<IsValidResult> {
+	public async isValid (version: string): Promise<IValidResult> {
 		const isValidSyntax: boolean = this.isValidSyntax(version);
 		this.publishedVersions = await this.nugetAPI.getPublishedVersions();
 
-		const isValidResult: IsValidResult = {
+		const isValidResult: IValidResult = {
 			isValid: true,
 			message: "Version Valid",
 		};
 
 		if (isValidSyntax) {
-			const alreadyExistsResult: IsValidResult = this.versionAlreadyExists(version);
+			const alreadyExistsResult: IValidResult = this.versionAlreadyExists(version);
 
 			if (alreadyExistsResult.isValid) {
 				/* eslint-disable @typescript-eslint/quotes */
@@ -56,13 +56,13 @@ export class VersionChecker {
 				return await Promise.resolve(alreadyExistsResult);
 			}
 			
-			const tooLargeResult: IsValidResult = this.isVersionTooLarge(version);
+			const tooLargeResult: IValidResult = this.isVersionTooLarge(version);
 
 			if (!tooLargeResult.isValid) {
 				return await Promise.resolve(tooLargeResult);
 			}
 			
-			const tooSmallResult: IsValidResult = this.isVersionTooSmall(version);
+			const tooSmallResult: IValidResult = this.isVersionTooSmall(version);
 
 			if (!tooSmallResult.isValid) {
 				return await Promise.resolve(tooSmallResult);
@@ -105,8 +105,8 @@ export class VersionChecker {
 	 * @param version The version to check.
 	 * @returns True if the given version already is published to nuget.org.
 	 */
-	private versionAlreadyExists (version: string): IsValidResult {
-		const result: IsValidResult = {
+	private versionAlreadyExists (version: string): IValidResult {
+		const result: IValidResult = {
 			isValid: true,
 			message: "",
 		};
@@ -132,8 +132,8 @@ export class VersionChecker {
 	 * @param version The version to check against what is currently published.
 	 * @returns True if the version is too large.
 	 */
-	private isVersionTooLarge (version: string): IsValidResult {
-		const result: IsValidResult = {
+	private isVersionTooLarge (version: string): IValidResult {
+		const result: IValidResult = {
 			isValid: true,
 			message: "",
 		};
@@ -254,8 +254,8 @@ export class VersionChecker {
 	 * @param version The version to check against what is currently published.
 	 * @returns True if the version is too small.
 	 */
-	private isVersionTooSmall (version: string): IsValidResult {
-		const result: IsValidResult = {
+	private isVersionTooSmall (version: string): IValidResult {
+		const result: IValidResult = {
 			isValid: true,
 			message: "",
 		};

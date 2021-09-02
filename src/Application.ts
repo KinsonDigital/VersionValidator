@@ -3,7 +3,7 @@ import { Action } from "./helpers/Action";
 import { Environment } from "./helpers/Environment";
 import { FileIO } from "./helpers/FileIO";
 import { FileLoader } from "./helpers/FileLoader";
-import { IsValidResult } from "./interfaces/IsValidResult";
+import { IValidResult } from "./interfaces/IValidResult";
 import { NugetAPI } from "./NugetAPI";
 import { VersionChecker } from "./VersionChecker";
 
@@ -36,7 +36,7 @@ export class Application {
 			const version: string = action.getInput("version");
 
 			const versionChecker: VersionChecker = container.resolve(VersionChecker);
-			const validResult: IsValidResult = await versionChecker.isValid(version);
+			const validResult: IValidResult = await versionChecker.isValid(version);
 
 			if (validResult.isValid) {
 				action.info(validResult.message);

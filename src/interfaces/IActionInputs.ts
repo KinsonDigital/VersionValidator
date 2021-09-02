@@ -1,7 +1,7 @@
 /**
  * Represents the inputs of the action.
  */
-export interface ActionInputs {
+export interface IActionInputs {
 	/**
 	 * The name of the nuget package in nuget.org
 	 */
