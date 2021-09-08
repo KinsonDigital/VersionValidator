@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse, AxiosError } from "axios";
 import { inject, injectable } from "tsyringe";
 import { IAction } from "./helpers/IAction";
 import { INugetAPI } from "./interfaces/INugetAPI";
@@ -30,8 +30,15 @@ export class NugetAPI implements INugetAPI {
 					let versions: string[] = response.data.versions;
 					
 					resolve(versions);
-				}, error => {
-					reject(error);
+				}, (error: AxiosError) => {
+					const notFound: number = 404;
+
+					if (error.response?.status === notFound) {
+						const noVersions: string[] = [];
+						resolve(noVersions);
+					} else {
+						reject(error);
+					}
 				});
 		});
 	}
