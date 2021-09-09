@@ -11,6 +11,13 @@
         "**/bin": true,
         "**/.nyc_output": true
     },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "**/dist": true,
+        "**/bin": true
+    },
     "cSpell.words": [
         "CASL",
         "Kinson",

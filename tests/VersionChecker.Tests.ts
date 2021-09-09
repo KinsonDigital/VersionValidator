@@ -6,11 +6,25 @@ import { IValidResult } from "../src/interfaces/IValidResult";
 import { VersionChecker } from "../src/VersionChecker";
 import { eachParams4 } from "./utils/utils";
 
+/*
+version: string, publishedVersions: string[], checkNuget: string, expected: boolean
+\_____________/	 \_________________________/  \________________/  \_______________/
+		|					  |						   |				  |
+		\_______________ 	  \________				   |			______/
+					    \			   \			   |		   /
+						 |				|			   |		   |
+				      |-----|	   |----------|		 |----|		 |---|
+				{ p1: "1.2.3", p2: [ "1.2.3", ], p3: "true", p4: false, }
+*/
+
 describe("VersionChecker ->", () => {
 	eachParams4([
 		// NO CHANGE TESTS
 		{ p1: "1.2.3", p2: [ "1.2.3", ], p3: "true", p4: false, },
 		{ p1: "1.2.3-preview.1", p2: ["1.2.3-preview.1", ], p3: "true", p4: false, },
+
+		// NUGET PACKAGE DOES NOT EXIST (NEVER PUBLISHED)
+		{ p1: "1.2.3-preview.4", p2: [ ], p3: "true", p4: true, },
 
 		// SYNTAX TESTS
 		{ p1: "1.2.3-preview.4", 	p2: ["1.2.3-preview.4", "1.0.0", ], p3: "true", p4: false, },

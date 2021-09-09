@@ -358,7 +358,7 @@ export class VersionChecker {
 			filteredVersions = this.filterByVersionNumber(filteredVersions, VersionNumber.Preview);
 		}
 
-		return filteredVersions[0];
+		return filteredVersions.length <= 0 ? "" : filteredVersions[0];
 	}
 
 	/**

@@ -33,7 +33,9 @@ export class NugetAPI implements INugetAPI {
 				}, (error: AxiosError) => {
 					const notFound: number = 404;
 
-					if (error.response?.status === notFound) {
+					if (error.response != null &&
+						error.response != undefined &&
+						error.response.status === notFound) {
 						const noVersions: string[] = [];
 						resolve(noVersions);
 					} else {
